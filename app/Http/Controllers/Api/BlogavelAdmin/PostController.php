@@ -8,6 +8,8 @@ use Blogavel\Blogavel\Http\Resources\PostResource;
 use Blogavel\Blogavel\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -56,6 +58,10 @@ final class PostController extends Controller
             'tags.*' => ['integer', 'exists:blogavel_tags,id'],
             'featured_media_id' => ['nullable', 'integer', 'exists:blogavel_media,id'],
         ]);
+
+        if (Schema::hasColumn('blogavel_posts', 'author_id') && Auth::check()) {
+            $data['author_id'] = Auth::id();
+        }
 
         if (!isset($data['slug']) || $data['slug'] === '') {
             $data['slug'] = Str::slug($data['title']);
